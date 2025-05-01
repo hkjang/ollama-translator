@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ollama 번역기</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+  /* EasyMDE toolbar 아이콘이 수평으로 정렬되도록 설정 */
+  .easyMDE .editor-toolbar {
+    display: flex !important;
+    flex-wrap: wrap; /* 여러 줄로 아이콘이 나열될 수 있도록 설정 */
+    justify-content: space-evenly; /* 아이콘들을 균등하게 배치 */
+    flex-direction: row !important; /* 수평 정렬을 강제로 적용 */
+    align-items: center; /* 아이콘들이 세로로 일렬로 정렬되도록 설정 */
+  }
+
+  .easyMDE .editor-toolbar button {
+    display: inline-block;
+    margin: 5px;
+  }
+
+  .easyMDE .editor-toolbar i {
+    font-size: 18px; /* 아이콘 크기 조정 */
+  }
+
+  /* 모바일 화면에서도 toolbar가 수평으로 나열되도록 조정 */
+  @media (max-width: 768px) {
+    .easyMDE .editor-toolbar {
+      flex-direction: row !important; /* 모바일 화면에서도 수평으로 정렬 */
+      justify-content: flex-start;
+    }
+
+    .easyMDE .editor-toolbar button {
+      margin-right: 10px;
+    }
+  }
+
+  /* 페이지 스타일 */
+  body {
+    background-color: #f8f9fa;
+    font-family: 'Arial', sans-serif;
+  }
+
+  .card {
+    border-radius: 15px;
+    border: none;
+  }
+
+  .card-header {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+    font-size: 1.25rem;
+  }
+
+  .card-body {
+    background-color: white;
+    border-radius: 10px;
+  }
+
+  textarea {
+    font-family: 'Courier New', monospace;
+    width: 100%;  /* 텍스트 입력 공간 넓힘 */
+    height: 200px;  /* 높이 설정 */
+    resize: none;   /* 리사이즈 방지 */
+  }
+
+  button {
+    width: 100%;
+    padding: 10px;
+    font-size: 1.1rem;
+  }
+
+  button i {
+    margin-right: 8px;
+  }
+
+  .translated-output pre {
+    background-color: #e9ecef;
+    padding: 15px;
+    border-radius: 8px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  /* 번역 결과가 없을 때 영역 스타일 */
+  .no-translation {
+    font-size: 1.1rem;
+    color: #6c757d;
+    text-align: center;
+    padding: 20px;
+  }
+  </style>
+</head>
+<body>
+  <div class="container mt-5">
+    <div class="card shadow-lg">
+      <div class="card-header text-center fs-4"><i class="fas fa-language"></i> Ollama 번역기</div>
+      <div class="card-body">
+        <form method="POST">
+          <div class="mb-3">
+            <label for="lang" class="form-label">언어 선택</label>
+            <select name="lang" class="form-select">
+              <option value="English">영어 (English)</option>
+              <option value="Korean">한국어 (Korean)</option>
+              <option value="Japanese">일본어 (Japanese)</option>
+              <option value="Chinese">중국어 (Chinese)</option>
+              <option value="Spanish">스페인어 (Spanish)</option>
+              <option value="French">프랑스어 (French)</option>
+              <option value="German">독일어 (German)</option>
+              <option value="Portuguese">포르투갈어 (Portuguese)</option>
+              <option value="Russian">러시아어 (Russian)</option>
+              <option value="Arabic">아랍어 (Arabic)</option>
+              <option value="Hindi">힌디어 (Hindi)</option>
+              <option value="Bengali">벵골어 (Bengali)</option>
+              <option value="Urdu">우르두어 (Urdu)</option>
+              <option value="Italian">이탈리아어 (Italian)</option>
+              <option value="Turkish">터키어 (Turkish)</option>
+              <option value="Vietnamese">베트남어 (Vietnamese)</option>
+              <option value="Thai">태국어 (Thai)</option>
+              <option value="Dutch">네덜란드어 (Dutch)</option>
+              <option value="Indonesian">인도네시아어 (Indonesian)</option>
+              <option value="Polish">폴란드어 (Polish)</option>
+            </select>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <label for="text" class="form-label">번역할 텍스트:</label>
+              <textarea id="" name="text" class="form-control" rows="10" required></textarea>
+            </div>
+            <div class="col-md-6">
+              {% if translated_text %}
+                <h5>번역 결과:</h5>
+                <div class="translated-output">
+                  <pre>{{ translated_text }}</pre>
+                </div>
+              {% else %}
+                <div class="no-translation">번역 결과가 없습니다. 텍스트를 입력하고 번역 버튼을 클릭해주세요.</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary mt-3">
+            <i class="fas fa-translate"></i> 번역하기
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+  <script>
+    const easyMDE = new EasyMDE({
+      element: document.getElementById("editor"),
+      autofocus: true,
+      spellChecker: false,
+      status: false,
+      minHeight: "300px",
+      renderingConfig: {
+        singleLineBreaks: false,
+        codeSyntaxHighlighting: true
+      },
+      previewClass: ["editor-preview", "custom-preview"],
+    });
+  </script>
+</body>
+</html>
