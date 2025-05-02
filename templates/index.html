@@ -9,6 +9,21 @@
   <link rel="stylesheet" href="/static/all.min.css">
   <link rel="stylesheet" href="/static/fontawesome.min.css">
   <style>
+    @font-face {
+      font-family: "Font Awesome 6 Free";
+      font-style: normal;
+      font-weight: 900;
+      src: url("/webfonts/fa-solid-900.woff2") format("woff2"),
+           url("/webfonts/fa-solid-900.woff") format("woff"),
+           url("/webfonts/fa-solid-900.ttf") format("truetype");
+    }
+
+    .fa {
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      font-style: normal;
+      display: inline-block;
+    }
   /* EasyMDE toolbar 아이콘이 수평으로 정렬되도록 설정 */
   .easyMDE .editor-toolbar {
     display: flex !important;
@@ -153,7 +168,7 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+  <script src="/static/easymde.min.js"></script>
   <script>
     const easyMDE = new EasyMDE({
       element: document.getElementById("editor"),
