@@ -1,6 +1,6 @@
 import os
 import requests
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, send_from_directory, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
 
@@ -12,6 +12,11 @@ OLLAMA_TRANSLATE_PROMPT = os.getenv("OLLAMA_TRANSLATE_PROMPT", "You are a profes
 
 app = Flask(__name__)
 CORS(app)
+
+# /webfonts 경로 추가
+@app.route('/webfonts/<path:filename>')
+def webfonts(filename):
+    return send_from_directory('webfonts', filename)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
